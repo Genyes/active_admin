@@ -11,6 +11,7 @@ module ActiveAdmin
 
     layout :determine_active_admin_layout
 
+    before_filter :valid_school
     before_filter :only_render_implemented_actions
     before_filter :authenticate_active_admin_user
 
