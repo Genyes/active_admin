@@ -24,9 +24,21 @@ module ActiveAdmin
       end
 
       def build_utility_navigation
-        insert_tag view_factory.utility_navigation, @utility_menu, id: "utility_nav", class: 'header-item tabs'
-      end
+        @custom_menu = Menu.new
 
+        if session[:ghost]
+          @custom_menu.add label: current_user.name, id: 'current_user', url: admin_user_path(current_user) do |dropdown|
+            User.where(id: session[:uids]).where('id != ?', current_user.id).order('first_name ASC, last_name ASC').each do |user|
+              dropdown.add label: user.name, url: ghost_session_path(user, current: request.fullpath)
+            end
+          end
+        else
+          @namespace.add_current_user_to_menu(@custom_menu)
+        end
+        @namespace.add_logout_button_to_menu(@custom_menu)
+
+        insert_tag view_factory.utility_navigation, @custom_menu, id: 'utility_nav', class: 'header-item tabs'
+      end
     end
   end
 end
