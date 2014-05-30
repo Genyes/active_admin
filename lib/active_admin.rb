@@ -4,7 +4,6 @@ require 'set'
 require 'ransack'
 require 'ransack_ext'
 require 'bourbon'
-require 'devise'
 require 'kaminari'
 require 'formtastic'
 require 'sass-rails'
@@ -27,9 +26,10 @@ module ActiveAdmin
   autoload :Callbacks,                'active_admin/callbacks'
   autoload :Component,                'active_admin/component'
   autoload :BaseController,           'active_admin/base_controller'
+  autoload :CanCanAdapter,            'active_admin/cancan_adapter'
   autoload :ControllerAction,         'active_admin/controller_action'
   autoload :CSVBuilder,               'active_admin/csv_builder'
-  autoload :Dependencies,             'active_admin/dependencies'
+  autoload :Dependency,               'active_admin/dependency'
   autoload :Deprecation,              'active_admin/deprecation'
   autoload :Devise,                   'active_admin/devise'
   autoload :DSL,                      'active_admin/dsl'
@@ -46,6 +46,7 @@ module ActiveAdmin
   autoload :PagePresenter,            'active_admin/page_presenter'
   autoload :PageController,           'active_admin/page_controller'
   autoload :PageDSL,                  'active_admin/page_dsl'
+  autoload :PunditAdapter,            'active_admin/pundit_adapter'
   autoload :Reloader,                 'active_admin/reloader'
   autoload :Resource,                 'active_admin/resource'
   autoload :ResourceController,       'active_admin/resource_controller'
@@ -129,6 +130,3 @@ require 'active_admin/filters'
 # Require ORM-specific plugins
 require 'active_admin/orm/active_record' if defined? ActiveRecord
 require 'active_admin/orm/mongoid'       if defined? Mongoid
-
-# Load gem-specific code only if that gem is being used
-require 'active_admin/cancan_adapter' if Gem.loaded_specs['cancan']

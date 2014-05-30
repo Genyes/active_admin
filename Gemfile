@@ -11,11 +11,21 @@ gem 'rails', rails_version
 
 gem 'arbre', github: 'gregbell/arbre' # until gregbell/arbre#16 makes it into an official release
 
+gem 'sass-rails', '4.0.3' if rails_version[0] == '4' # #3005, #3093
+
+# Optional dependencies
+gem 'cancan'
+gem 'devise'
+gem 'draper'
+gem 'pundit'
+
+# Utility gems used in both development & test environments
 gem 'rake', require: false
-gem 'rails-i18n' # Provides default i18n for many languages
+gem 'parallel_tests'
 
 group :development do
   # Debugging
+  gem 'pry'                # Easily debug from your console with `binding.pry`
   gem 'better_errors'      # Web UI to debug exceptions. Go to /__better_errors to access the latest one
   gem 'binding_of_caller'  # Retrieve the binding of a method's caller in MRI Ruby >= 1.9.2
 
@@ -30,19 +40,16 @@ group :development do
 end
 
 group :test do
-  gem 'draper'
-  gem 'cancan'
   gem 'capybara', '= 1.1.2'
   gem 'simplecov', require: false # Test coverage generator. Go to /coverage/ after running tests
   gem 'coveralls', require: false # Test coverage website. Go to https://coveralls.io
-  # Move to next stable version including: https://github.com/cucumber/cucumber-rails/pull/253
-  gem 'cucumber-rails', github: 'cucumber/cucumber-rails', require: false
+  gem 'cucumber-rails', require: false
   gem 'database_cleaner'
   gem 'guard-rspec'
   gem 'jasmine'
   gem 'jslint_on_rails'
   gem 'launchy'
-  gem 'parallel_tests'
+  gem 'rails-i18n' # Provides default i18n for many languages
   gem 'rspec-rails'
   gem 'shoulda-matchers'
   gem 'sqlite3'

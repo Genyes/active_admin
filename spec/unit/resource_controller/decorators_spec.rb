@@ -7,10 +7,6 @@ describe ActiveAdmin::ResourceController::Decorators do
         "Test Controller using Decorators"
       end
 
-      def self.helper_method(method)
-        # STUB
-      end
-
       include ActiveAdmin::ResourceController::Decorators
 
       public :apply_decorator, :apply_collection_decorator
@@ -19,9 +15,10 @@ describe ActiveAdmin::ResourceController::Decorators do
 
   let(:controller) { controller_class.new }
   let(:active_admin_config) { double(decorator_class: decorator_class) }
-  before { controller.stub(active_admin_config: active_admin_config) }
-  before { controller.stub(action_name: action) }
-
+  before do
+    allow(controller).to receive(:active_admin_config).and_return(active_admin_config)
+    allow(controller).to receive(:action_name).and_return(action)
+  end
 
   describe '#apply_decorator' do
     let(:action) { 'show' }
@@ -42,7 +39,7 @@ describe ActiveAdmin::ResourceController::Decorators do
   describe '#apply_collection_decorator' do
     before { Post.create! }
     let(:action) { 'index' }
-    let(:collection) { Post.scoped }
+    let(:collection) { Post.where nil }
     subject(:applied) { controller.apply_collection_decorator(collection) }
 
     context 'when a decorator is configured' do
@@ -56,7 +53,7 @@ describe ActiveAdmin::ResourceController::Decorators do
         end
 
         it 'has a good description for the generated class' do
-          expect(applied.class.name).to eq "Draper::CollectionDecorator of PostDecorator with ActiveAdmin extensions"
+          expect(applied.class.name).to eq "Draper::CollectionDecorator of PostDecorator + ActiveAdmin"
         end
 
       end
@@ -68,7 +65,7 @@ describe ActiveAdmin::ResourceController::Decorators do
     let(:resource) { Post.new }
     let(:form_presenter) { double options: { decorate: decorate_form } }
     let(:decorator_class) { PostDecorator }
-    before { active_admin_config.stub(:get_page_presenter).with(:form).and_return form_presenter }
+    before { allow(active_admin_config).to receive(:get_page_presenter).with(:form).and_return form_presenter }
 
     subject(:applied) { controller.apply_decorator(resource) }
 

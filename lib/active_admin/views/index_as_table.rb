@@ -159,6 +159,17 @@ module ActiveAdmin
     # end
     # ```
     #
+    # ## Custom row class
+    #
+    # In order to add special class to table rows pass the proc object as a `:row_class` option
+    # of the `index` method.
+    #
+    # ```ruby
+    # index row_class: -> (element) { 'active' if element.active? } do
+    #   # columns
+    # end
+    # ```
+    #
     class IndexAsTable < ActiveAdmin::Component
 
       def build(page_presenter, collection)
@@ -167,7 +178,8 @@ module ActiveAdmin
           sortable: true,
           class: "index_table index",
           i18n: active_admin_config.resource_class,
-          paginator: page_presenter[:paginator] != false
+          paginator: page_presenter[:paginator] != false,
+          row_class: page_presenter[:row_class]
         }
 
         table_for collection, table_options do |t|
@@ -187,7 +199,7 @@ module ActiveAdmin
           resource_class.content_columns.each do |col|
             column col.name.to_sym
           end
-          default_actions
+          actions
         end
       end
 
@@ -204,7 +216,7 @@ module ActiveAdmin
         # Display a column for checkbox
         def selectable_column
           return unless active_admin_config.batch_actions.any?
-          column resource_selection_toggle_cell, class: 'selectable' do |resource|
+          column resource_selection_toggle_cell, class: 'col-selectable' do |resource|
             resource_selection_cell resource
           end
         end
@@ -220,11 +232,18 @@ module ActiveAdmin
           end
         end
 
+        def default_actions
+          raise '`default_actions` is no longer provided in ActiveAdmin 1.x. Use `actions` instead.'
+        end
+
         # Add links to perform actions.
         #
         # ```ruby
         # # Add default links.
         # actions
+        #
+        # # Add default links with a custom column title (empty by default).
+        # actions name: 'A title!'
         #
         # # Append some actions onto the end of the default actions.
         # actions do |admin_user|
@@ -235,40 +254,67 @@ module ActiveAdmin
         # actions defaults: false do |admin_user|
         #   link_to 'Grant Admin', grant_admin_admin_user_path(admin_user)
         # end
-        # ```
         #
+        # # Append some actions onto the end of the default actions displayed in a Dropdown Menu
+        # actions dropdown: true do |admin_user|
+        #   item 'Grant Admin', grant_admin_admin_user_path(admin_user)
+        # end
+        #
+        # # Custom actions without the defaults displayed in a Dropdown Menu.
+        # actions defaults: false, dropdown: true, dropdown_name: 'Additional actions' do |admin_user|
+        #   item 'Grant Admin', grant_admin_admin_user_path(admin_user)
+        # end
+        #
+        # ```
         def actions(options = {}, &block)
-          options = {
-            name: "",
-            defaults: true
-          }.merge(options)
-          column options[:name] do |resource|
-            text_node default_actions(resource) if options[:defaults]
-            text_node instance_exec(resource, &block) if block_given?
+          name          = options.delete(:name)     { '' }
+          defaults      = options.delete(:defaults) { true }
+          dropdown      = options.delete(:dropdown) { false }
+          dropdown_name = options.delete(:dropdown_name) { I18n.t 'active_admin.dropdown_actions.button_label', default: 'Actions' }
+
+          options[:class] ||= 'col-actions'
+
+          column name, options do |resource|
+            if dropdown
+              dropdown_menu dropdown_name do
+                dropdown_defaults(resource) if defaults
+                instance_exec(resource, &block) if block_given?
+              end
+            else
+              text_node defaults(resource) if defaults
+              text_node instance_exec(resource, &block) if block_given?
+            end
           end
         end
 
-        def default_actions(*args)
-          links = proc do |resource|
-            links = ''.html_safe
-            if controller.action_methods.include?('show') && authorized?(ActiveAdmin::Auth::READ, resource)
-              links << link_to(I18n.t('active_admin.view'), resource_path(resource), class: "member_link view_link")
-            end
-            if controller.action_methods.include?('edit') && authorized?(ActiveAdmin::Auth::UPDATE, resource)
-              links << link_to(I18n.t('active_admin.edit'), edit_resource_path(resource), class: "member_link edit_link")
-            end
-            if controller.action_methods.include?('destroy') && authorized?(ActiveAdmin::Auth::DESTROY, resource)
-              links << link_to(I18n.t('active_admin.delete'), resource_path(resource), method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')}, class: "member_link delete_link")
-            end
-            links
-          end
+      private
 
-          options = args.extract_options!
-          if options.present? || args.empty?
-            actions options
-          else
-            links.call(args.first)
+        def dropdown_defaults(resource)
+          if controller.action_methods.include?('show') && authorized?(ActiveAdmin::Auth::READ, resource)
+            item I18n.t('active_admin.view'), resource_path(resource), class: 'view_link'
           end
+          if controller.action_methods.include?('edit') && authorized?(ActiveAdmin::Auth::UPDATE, resource)
+            item I18n.t('active_admin.edit'), edit_resource_path(resource), class: 'edit_link'
+          end
+          if controller.action_methods.include?('destroy') && authorized?(ActiveAdmin::Auth::DESTROY, resource)
+            item I18n.t('active_admin.delete'), resource_path(resource), class: 'delete_link',
+              method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')}
+          end
+        end
+
+        def defaults(resource)
+          links = ''.html_safe
+          if controller.action_methods.include?('show') && authorized?(ActiveAdmin::Auth::READ, resource)
+            links << link_to(I18n.t('active_admin.view'), resource_path(resource), class: 'member_link view_link')
+          end
+          if controller.action_methods.include?('edit') && authorized?(ActiveAdmin::Auth::UPDATE, resource)
+            links << link_to(I18n.t('active_admin.edit'), edit_resource_path(resource), class: 'member_link edit_link')
+          end
+          if controller.action_methods.include?('destroy') && authorized?(ActiveAdmin::Auth::DESTROY, resource)
+            links << link_to(I18n.t('active_admin.delete'), resource_path(resource), class: 'member_link delete_link',
+              method: :delete, data: {confirm: I18n.t('active_admin.delete_confirmation')})
+          end
+          links
         end
       end # IndexTableFor
 

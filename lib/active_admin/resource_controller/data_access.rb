@@ -51,7 +51,11 @@ module ActiveAdmin
         collection = apply_sorting(collection)
         collection = apply_filtering(collection)
         collection = apply_scoping(collection)
-        collection = apply_pagination(collection)
+
+        unless request.format == 'text/csv'
+          collection = apply_pagination(collection)
+        end
+
         collection = apply_collection_decorator(collection)
 
         collection
@@ -98,9 +102,13 @@ module ActiveAdmin
       # Does the actual work of finding a resource in the database. This
       # method uses the finder method as defined in InheritedResources.
       #
+      # Note that public_send can't be used here because Rails 3.2's
+      # ActiveRecord::Associations::CollectionProxy (belongs_to associations)
+      # mysteriously returns an Enumerator object.
+      #
       # @returns [ActiveRecord::Base] An active record object.
       def find_resource
-        scoped_collection.send(method_for_find, params[:id])
+        scoped_collection.send method_for_find, params[:id]
       end
 
 
@@ -132,7 +140,7 @@ module ActiveAdmin
       #
       # @returns [ActiveRecord::Base] An un-saved active record base object
       def build_new_resource
-        scoped_collection.send(method_for_build, *resource_params)
+        scoped_collection.public_send method_for_build, *resource_params
       end
 
       # Calls all the appropriate callbacks and then creates the new resource.
@@ -251,7 +259,7 @@ module ActiveAdmin
 
       def current_scope
         @current_scope ||= if params[:scope]
-          active_admin_config.get_scope_by_id(params[:scope]) if params[:scope]
+          active_admin_config.get_scope_by_id(params[:scope])
         else
           active_admin_config.default_scope(self)
         end
@@ -261,18 +269,13 @@ module ActiveAdmin
         page_method_name = Kaminari.config.page_method_name
         page = params[Kaminari.config.param_name]
 
-        chain.send(page_method_name, page).per(per_page)
+        chain.public_send(page_method_name, page).per(per_page)
       end
 
       def per_page
-        return max_csv_records if request.format == 'text/csv'
         return max_per_page if active_admin_config.paginate == false
 
         @per_page || active_admin_config.per_page
-      end
-
-      def max_csv_records
-        10_000
       end
 
       def max_per_page

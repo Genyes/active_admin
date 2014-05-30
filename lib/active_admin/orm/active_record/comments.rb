@@ -50,7 +50,10 @@ ActiveAdmin.after_load do |app|
         controller do
           # Prevent N+1 queries
           def scoped_collection
-            resource_class.includes :author, :resource
+            super.includes *( # rails/rails#14734
+              ActiveAdmin::Dependency.rails?('>= 4.1.0', '<= 4.1.1') ?
+                [:author] : [:author, :resource]
+            )
           end
 
           # Redirect to the resource show page after comment creation
@@ -63,11 +66,11 @@ ActiveAdmin.after_load do |app|
               end
             end
           end
+        end
 
-          # Define the permitted params in case the app is using Strong Parameters
-          def permitted_params
-            params.permit active_admin_comment: [:body, :namespace, :resource_id, :resource_type]
-          end unless Rails::VERSION::MAJOR == 3 && !defined? StrongParameters
+        # Set up permitted params in case the app is using Strong Parameters
+        unless Rails::VERSION::MAJOR == 3 && !defined? StrongParameters
+          permit_params :body, :namespace, :resource_id, :resource_type
         end
 
         index do

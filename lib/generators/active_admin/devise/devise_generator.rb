@@ -12,8 +12,18 @@ module ActiveAdmin
 
       RESERVED_NAMES = [:active_admin_user]
 
+      class_option  :default_user, :type => :boolean, :default => true,
+                    :desc => "Should a default user be created inside the migration?"
+
       def install_devise
+        begin
+          Dependency.devise! Dependency::DEVISE
+        rescue Dependency::Error => e
+          raise Error, "#{e.message} If you don't want to use devise, run the generator with --skip-users."
+        end
+
         require 'devise'
+
         if File.exists?(File.join(destination_root, "config", "initializers", "devise.rb"))
           log :generate, "No need to install devise, already done."
         else
@@ -44,17 +54,19 @@ module ActiveAdmin
       def add_default_user_to_migration
         # Don't assume that we have a migration!
         devise_migration_file = Dir["db/migrate/*_devise_create_#{table_name}.rb"].first
-        return if devise_migration_file.nil?
+        return if devise_migration_file.nil? || !options[:default_user]
 
         devise_migration_content = File.read(devise_migration_file)
 
+        create_user_code = "#{class_name}.create!(email: 'admin@example.com', password: 'password', password_confirmation: 'password')"
+
         if devise_migration_content["def change"]
           inject_into_file  devise_migration_file,
-                            "def migrate(direction)\n    super\n    # Create a default user\n    #{class_name}.create!(email: 'admin@example.com', password: 'password', password_confirmation: 'password') if direction == :up\n  end\n\n  ",
+                            "def migrate(direction)\n    super\n    # Create a default user\n    #{create_user_code} if direction == :up\n  end\n\n  ",
                             before: "def change"
         elsif devise_migration_content[/def (self.)?up/]
           inject_into_file  devise_migration_file,
-                            "# Create a default user\n    #{class_name}.create!(email: 'admin@example.com', password: 'password', password_confirmation: 'password')\n\n    ",
+                            "# Create a default user\n    #{create_user_code}\n\n    ",
                             before: "add_index :#{table_name}, :email"
         else
           puts devise_migration_content

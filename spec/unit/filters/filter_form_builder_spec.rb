@@ -101,7 +101,7 @@ describe ActiveAdmin::Filters::ViewHelper do
 
 
     context "with predicate" do
-      %w[equals contains starts_with ends_with].each do |predicate|
+      %w[eq equals cont contains start starts_with end ends_with].each do |predicate|
         describe '"'+predicate+'"' do
           let(:body) { filter :"title_#{predicate}" }
 
@@ -135,7 +135,7 @@ describe ActiveAdmin::Filters::ViewHelper do
 
     context "when loading collection from DB" do
       it "should use pluck for efficiency" do
-        builder.any_instance.should_receive(:pluck_column) { [] }
+        expect_any_instance_of(builder).to receive(:pluck_column) { [] }
         body
       end
 

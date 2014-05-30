@@ -27,7 +27,17 @@ ActiveAdmin.register Post do
 end
 ```
 
-For nested associations in your form, this is how you define their attributes:
+Any form field that sends multiple values (such as a HABTM association, or an array attribute)
+needs to pass an empty array to `permit_params`:
+
+```ruby
+ActiveAdmin.register Post do
+  permit_params :title, :content, :publisher_id, roles: []
+end
+```
+
+Nested associations in the same form also require an array, but it
+needs to be filled with any attributes used.
 
 ```ruby
 ActiveAdmin.register Post do
@@ -49,6 +59,25 @@ ActiveAdmin.register Post do
     params = [:title, :content, :publisher_id]
     params.push :author_id if current_user.admin?
     params
+  end
+end
+```
+
+The `permit_params` call creates a method called `permitted_params`. You should use this method when overriding `create` or `update` actions:
+
+```ruby
+ActiveAdmin.register Post do
+  controller do
+    def create
+      # Good
+      @post = Post.new(permitted_params)
+      # Bad
+      @post = Post.new(params[:post])
+
+      if @post.save
+        # ...
+      end
+    end
   end
 end
 ```
@@ -274,7 +303,7 @@ If you need to completely replace the record retrieving code (e.g., you have a c
 ```ruby
 ActiveAdmin.register Post do
   controller do
-    def resource
+    def find_resource
       Post.where(id: params[:id]).first!
     end
   end

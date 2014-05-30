@@ -1,3 +1,5 @@
+ActiveAdmin::Dependency.devise! ActiveAdmin::Dependency::DEVISE
+
 require 'devise'
 
 module ActiveAdmin
@@ -5,7 +7,7 @@ module ActiveAdmin
 
     def self.config
       config = {
-        path: ActiveAdmin.application.default_namespace,
+        path: ActiveAdmin.application.default_namespace || "/",
         controllers: ActiveAdmin::Devise.controllers,
         path_names: { sign_in: 'login', sign_out: "logout" }
       }
@@ -71,9 +73,15 @@ module ActiveAdmin
     class RegistrationsController < ::Devise::RegistrationsController
        include ::ActiveAdmin::Devise::Controller
     end
-    
+
     class ConfirmationsController < ::Devise::ConfirmationsController
        include ::ActiveAdmin::Devise::Controller
+    end
+
+    def self.controllers_for_filters
+      [SessionsController, PasswordsController, UnlocksController,
+        RegistrationsController, ConfirmationsController
+      ]
     end
 
   end

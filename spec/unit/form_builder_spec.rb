@@ -32,7 +32,7 @@ describe ActiveAdmin::FormBuilder do
   def build_form(options = {}, form_object = Post.new, &block)
     options = {url: helpers.posts_path}.merge(options)
 
-    render_arbre_component({form_object: form_object, form_options: options, form_block: block}, helpers)do
+    render_arbre_component({form_object: form_object, form_options: options, form_block: block}, helpers) do
       text_node active_admin_form_for(assigns[:form_object], assigns[:form_options], &assigns[:form_block])
     end.to_s
   end
@@ -52,19 +52,19 @@ describe ActiveAdmin::FormBuilder do
     end
 
    it "should generate a text input" do
-      body.should have_tag("input", attributes: { type: "text",
+      expect(body).to have_tag("input", attributes: { type: "text",
                                                      name: "post[title]" })
     end
     it "should generate a textarea" do
-      body.should have_tag("textarea", attributes: { name: "post[body]" })
+      expect(body).to have_tag("textarea", attributes: { name: "post[body]" })
     end
     it "should only generate the form once" do
-      body.scan(/Title/).size.should == 1
+      expect(body.scan(/Title/).size).to eq(1)
     end
     it "should generate actions" do
-      body.should have_tag("input", attributes: {  type: "submit",
+      expect(body).to have_tag("input", attributes: {  type: "submit",
                                                           value: "Submit Me" })
-      body.should have_tag("input", attributes: {  type: "submit",
+      expect(body).to have_tag("input", attributes: {  type: "submit",
                                                           value: "Another Button" })
     end
   end
@@ -88,22 +88,9 @@ describe ActiveAdmin::FormBuilder do
       end
     end
     it "should pass the options on to the form" do
-      body.should have_tag("form", attributes: { enctype: "multipart/form-data" })
+      expect(body).to have_tag("form", attributes: { enctype: "multipart/form-data" })
     end
   end
-
-  describe "passing in options with actions" do
-    let :body do
-      build_form html: { multipart: true } do |f|
-        f.inputs :title
-        f.actions
-      end
-    end
-    it "should pass the options on to the form" do
-      body.should have_tag("form", attributes: { enctype: "multipart/form-data" })
-    end
-  end
-
 
   context "with actions" do
     it "should generate the form once" do
@@ -113,14 +100,14 @@ describe ActiveAdmin::FormBuilder do
         end
         f.actions
       end
-      body.scan(/id="post_title"/).size.should == 1
+      expect(body.scan(/id="post_title"/).size).to eq(1)
     end
     it "should generate one button and a cancel link" do
       body = build_form do |f|
         f.actions
       end
-      body.scan(/type="submit"/).size.should == 1
-      body.scan(/class="cancel"/).size.should == 1
+      expect(body.scan(/type="submit"/).size).to eq(1)
+      expect(body.scan(/class="cancel"/).size).to eq(1)
     end
     it "should generate multiple actions" do
       body = build_form do |f|
@@ -129,8 +116,8 @@ describe ActiveAdmin::FormBuilder do
           f.action :submit, label: "Create & Edit"
         end
       end
-      body.scan(/type="submit"/).size.should == 2
-      body.scan(/class="cancel"/).size.should == 0
+      expect(body.scan(/type="submit"/).size).to eq(2)
+      expect(body.scan(/class="cancel"/).size).to eq(0)
     end
 
   end
@@ -143,14 +130,14 @@ describe ActiveAdmin::FormBuilder do
         end
         f.actions
       end
-      body.scan(/id="post_title"/).size.should == 1
+      expect(body.scan(/id="post_title"/).size).to eq(1)
     end
     it "should generate one button and a cancel link" do
       body = build_form do |f|
         f.actions
       end
-      body.scan(/type="submit"/).size.should == 1
-      body.scan(/class="cancel"/).size.should == 1
+      expect(body.scan(/type="submit"/).size).to eq(1)
+      expect(body.scan(/class="cancel"/).size).to eq(1)
     end
     it "should generate multiple actions" do
       body = build_form do |f|
@@ -159,8 +146,8 @@ describe ActiveAdmin::FormBuilder do
           f.action :submit, label: "Create & Edit"
         end
       end
-      body.scan(/type="submit"/).size.should == 2
-      body.scan(/class="cancel"/).size.should == 0
+      expect(body.scan(/type="submit"/).size).to eq(2)
+      expect(body.scan(/class="cancel"/).size).to eq(0)
     end
   end
 
@@ -171,11 +158,11 @@ describe ActiveAdmin::FormBuilder do
       end
     end
     it "should have a title input" do
-      body.should have_tag("input", attributes: { type: "text",
+      expect(body).to have_tag("input", attributes: { type: "text",
                                                           name: "post[title]" })
     end
     it "should have a body textarea" do
-      body.should have_tag("textarea", attributes: { name: "post[body]" })
+      expect(body).to have_tag("textarea", attributes: { name: "post[body]" })
     end
   end
 
@@ -195,7 +182,7 @@ describe ActiveAdmin::FormBuilder do
       end
     end
     it "should generate a nested text input once" do
-      body.scan("post_author_attributes_first_name_input").size.should == 1
+      expect(body.scan("post_author_attributes_first_name_input").size).to eq(1)
     end
   end
 
@@ -212,7 +199,7 @@ describe ActiveAdmin::FormBuilder do
         end
       end
       it "should create 2 options" do
-        body.scan(/<option/).size.should == 3
+        expect(body.scan(/<option/).size).to eq(3)
       end
     end
 
@@ -223,7 +210,7 @@ describe ActiveAdmin::FormBuilder do
         end
       end
       it "should create 2 radio buttons" do
-        body.scan(/type="radio"/).size.should == 2
+        expect(body.scan(/type="radio"/).size).to eq(2)
       end
     end
 
@@ -245,10 +232,10 @@ describe ActiveAdmin::FormBuilder do
       end
     end
     it "should generate a nested text input once" do
-      body.scan("post_author_attributes_first_name_input").size.should == 1
+      expect(body.scan("post_author_attributes_first_name_input").size).to eq(1)
     end
     it "should add an author first name field" do
-      body.should have_tag("input", attributes: { name: "post[author_attributes][first_name]"})
+      expect(body).to have_tag("input", attributes: { name: "post[author_attributes][first_name]"})
     end
   end
 
@@ -257,7 +244,7 @@ describe ActiveAdmin::FormBuilder do
       body = build_form do |f|
         f.input :title, wrapper_html: { class: "important" }
       end
-      body.should have_tag("li", attributes: {class: "important string input optional stringish"})
+      expect(body).to have_tag("li", attributes: {class: "important string input optional stringish"})
     end
   end
 
@@ -274,41 +261,41 @@ describe ActiveAdmin::FormBuilder do
 
       it "should translate the association name in header" do
         with_translation activerecord: {models: {post: {one: 'Blog Post', other: 'Blog Posts'}}} do
-          body.should have_tag('h3', 'Blog Posts')
+          expect(body).to have_tag('h3', 'Blog Posts')
         end
       end
 
       it "should use model name when there is no translation for given model in header" do
-        body.should have_tag('h3', 'Post')
+        expect(body).to have_tag('h3', 'Post')
       end
 
       it "should translate the association name in has many new button" do
         with_translation activerecord: {models: {post: {one: 'Blog Post', other: 'Blog Posts'}}} do
-          body.should have_tag('a', 'Add New Blog Post')
+          expect(body).to have_tag('a', 'Add New Blog Post')
         end
       end
 
       it "should translate the attribute name" do
         with_translation activerecord: {attributes: {post: {title: 'A very nice title'}}} do
-          body.should have_tag 'label', 'A very nice title'
+          expect(body).to have_tag 'label', 'A very nice title'
         end
       end
 
       it "should use model name when there is no translation for given model in has many new button" do
-        body.should have_tag('a', 'Add New Post')
+        expect(body).to have_tag('a', 'Add New Post')
       end
 
       it "should render the nested form" do
-        body.should have_tag("input", attributes: {name: "category[posts_attributes][0][title]"})
+        expect(body).to have_tag("input", attributes: {name: "category[posts_attributes][0][title]"})
       end
 
       it "should add a link to remove new nested records" do
-        Capybara.string(body).should have_css '.has_many_container > fieldset > ol > li > a', href: '#',
+        expect(Capybara.string(body)).to have_css '.has_many_container > fieldset > ol > li > a', href: '#',
           content: 'Remove', class: 'button has_many_remove', data: {placeholder: 'NEW_POST_RECORD'}
       end
 
       it "should add a link to add new nested records" do
-        Capybara.string(body).should have_css(".has_many_container > fieldset > ol > li > a", class: "button", href: "#", content: "Add New Post")
+        expect(Capybara.string(body)).to have_css(".has_many_container > fieldset > ol > li > a", class: "button", href: "#", content: "Add New Post")
       end
     end
 
@@ -323,11 +310,11 @@ describe ActiveAdmin::FormBuilder do
       end
 
       it "should accept a block with a second argument" do
-        body.should have_tag("label", "Title 1")
+        expect(body).to have_tag("label", "Title 1")
       end
 
       it "should add a custom header" do
-        body.should have_tag('h3', 'Post')
+        expect(body).to have_tag('h3', 'Post')
       end
 
     end
@@ -343,15 +330,15 @@ describe ActiveAdmin::FormBuilder do
       end
 
       it "should not add a header" do
-        body.should_not have_tag('h3', 'Post')
+        expect(body).not_to have_tag('h3', 'Post')
       end
 
       it "should not add link to new nested records" do
-        body.should_not have_tag('a', 'Add New Post')
+        expect(body).not_to have_tag('a', 'Add New Post')
       end
 
       it "should render the nested form" do
-        body.should have_tag("input", attributes: {name: "category[posts_attributes][0][title]"})
+        expect(body).to have_tag("input", attributes: {name: "category[posts_attributes][0][title]"})
       end
     end
 
@@ -366,7 +353,7 @@ describe ActiveAdmin::FormBuilder do
       end
 
       it "should add a custom header" do
-        body.should have_tag('h3', 'Test heading')
+        expect(body).to have_tag('h3', 'Test heading')
       end
 
     end
@@ -382,7 +369,7 @@ describe ActiveAdmin::FormBuilder do
       end
 
       it "should add a custom new record link" do
-        body.should have_tag('a', 'My Custom New Post')
+        expect(body).to have_tag('a', 'My Custom New Post')
       end
 
     end
@@ -399,15 +386,15 @@ describe ActiveAdmin::FormBuilder do
         end
 
         it "should include a boolean field for _destroy" do
-          body.should have_tag("input", attributes: {name: "category[posts_attributes][0][_destroy]"})
+          expect(body).to have_tag("input", attributes: {name: "category[posts_attributes][0][_destroy]"})
         end
 
         it "should have a check box with 'Remove' as its label" do
-          body.should have_tag("label", attributes: {for: "category_posts_attributes_0__destroy"}, content: "Delete")
+          expect(body).to have_tag("label", attributes: {for: "category_posts_attributes_0__destroy"}, content: "Delete")
         end
 
         it "should wrap the destroy field in an li with class 'has_many_delete'" do
-          Capybara.string(body).should have_css(".has_many_container > fieldset > ol > li.has_many_delete > input")
+          expect(Capybara.string(body)).to have_css(".has_many_container > fieldset > ol > li.has_many_delete > input")
         end
       end
 
@@ -422,11 +409,11 @@ describe ActiveAdmin::FormBuilder do
         end
 
         it "should not have a boolean field for _destroy" do
-          body.should_not have_tag("input", attributes: {name: "category[posts_attributes][0][_destroy]"})
+          expect(body).not_to have_tag("input", attributes: {name: "category[posts_attributes][0][_destroy]"})
         end
 
         it "should not have a check box with 'Remove' as its label" do
-          body.should_not have_tag("label", attributes: {for: "category_posts_attributes_0__destroy"}, content: "Remove")
+          expect(body).not_to have_tag("label", attributes: {for: "category_posts_attributes_0__destroy"}, content: "Remove")
         end
       end
     end
@@ -437,14 +424,53 @@ describe ActiveAdmin::FormBuilder do
         let :body do
           build_form({url: '/categories'}, Category.new) do |f|
             f.object.posts.build
-            f.has_many :posts, sortable: :custom_category_id do |p|
+            f.has_many :posts, sortable: :position do |p|
               p.input :title
             end
           end
         end
 
         it "shows the nested fields for unsaved records" do
-          body.should have_tag("fieldset", attributes: {class: "inputs has_many_fields"})
+          expect(body).to have_tag("fieldset", attributes: {class: "inputs has_many_fields"})
+        end
+
+      end
+
+      context "with post returning nil for the sortable attribute" do
+        let :body do
+          build_form({url: '/categories'}, Category.new) do |f|
+            f.object.posts.build position: 3
+            f.object.posts.build
+            f.has_many :posts, sortable: :position do |p|
+              p.input :title
+            end
+          end
+        end
+
+        it "shows the nested fields for unsaved records" do
+          expect(body).to have_tag("fieldset", attributes: {class: "inputs has_many_fields"})
+        end
+
+      end
+
+      context "with existing and new posts" do
+        let! :category do
+          Category.create name: 'Name'
+        end
+        let! :post do
+          category.posts.create
+        end
+        let :body do
+          build_form({url: '/categories'}, category) do |f|
+            f.object.posts.build
+            f.has_many :posts, sortable: :position do |p|
+              p.input :title
+            end
+          end
+        end
+
+        it "shows the nested fields for saved and unsaved records" do
+          expect(body).to have_tag("fieldset", attributes: {class: "inputs has_many_fields"})
         end
 
       end
@@ -464,15 +490,15 @@ describe ActiveAdmin::FormBuilder do
         end
 
         it "should wrap the has_many fieldset in an li" do
-          Capybara.string(body).should have_css("ol > li.has_many_container")
+          expect(Capybara.string(body)).to have_css("ol > li.has_many_container")
         end
 
         it "should have a direct fieldset child" do
-          Capybara.string(body).should have_css("li.has_many_container > fieldset")
+          expect(Capybara.string(body)).to have_css("li.has_many_container > fieldset")
         end
 
         it "should not contain invalid li children" do
-          Capybara.string(body).should_not have_css("div.has_many_container > li")
+          expect(Capybara.string(body)).not_to have_css("div.has_many_container > li")
         end
       end
 
@@ -490,11 +516,11 @@ describe ActiveAdmin::FormBuilder do
         end
 
         it "should wrap the inner has_many fieldset in an ol > li" do
-          Capybara.string(body).should have_css(".has_many_container ol > li.has_many_container > fieldset")
+          expect(Capybara.string(body)).to have_css(".has_many_container ol > li.has_many_container > fieldset")
         end
 
         it "should not contain invalid li children" do
-          Capybara.string(body).should_not have_css(".has_many_container div.has_many_container > li")
+          expect(Capybara.string(body)).not_to have_css(".has_many_container div.has_many_container > li")
         end
       end
     end
@@ -508,7 +534,7 @@ describe ActiveAdmin::FormBuilder do
         end
       end
 
-      body.should have_tag("input", attributes: {name: "category[posts_attributes][0][title]"})
+      expect(body).to have_tag("input", attributes: {name: "category[posts_attributes][0][title]"})
     end
   end
 
@@ -531,7 +557,7 @@ describe ActiveAdmin::FormBuilder do
          eval source
        end
      end
-     body.scan(regex).size.should == 2
+     expect(body.scan(regex).size).to eq(2)
    end
   end
 
@@ -545,7 +571,7 @@ describe ActiveAdmin::FormBuilder do
         end
       end
       it "should generate a text input with the class of datepicker" do
-        body.should have_tag("input", attributes: {  type: "text",
+        expect(body).to have_tag("input", attributes: {  type: "text",
                                                             class: "datepicker",
                                                             name: "post[created_at]" })
       end
@@ -562,7 +588,7 @@ describe ActiveAdmin::FormBuilder do
           end
         end
         it 'should generate a datepicker text input with data min and max dates' do
-          body.should have_tag("input", attributes: { type: "text",
+          expect(body).to have_tag("input", attributes: { type: "text",
                                                             class: "datepicker",
                                                             name: "post[created_at]",
                                                             data: { datepicker_options: {

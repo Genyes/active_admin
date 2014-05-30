@@ -5,7 +5,7 @@ module ActiveAdmin
       builder_method :attributes_table_for
 
       def build(obj, *attrs)
-        @collection     = obj.respond_to?(:each) && !obj.is_a?(Hash) ? obj : [obj]
+        @collection     = is_array?(obj) ? obj : [obj]
         @resource_class = @collection.first.class
         options = { }
         options[:for] = @collection.first if single_record?
@@ -87,17 +87,25 @@ module ActiveAdmin
       def find_attr_value(record, attr)
         if attr.is_a?(Proc)
           attr.call(record)
-        elsif attr.to_s[/\A(.+)_id\z/] && record.respond_to?($1)
-          record.send($1)
+        elsif attr =~ /\A(.+)_id\z/ && reflection_for(record.class, $1.to_sym)
+          record.public_send $1
         elsif record.respond_to? attr
-          record.send(attr)
+          record.public_send attr
         elsif record.respond_to? :[]
           record[attr]
         end
       end
 
+      def reflection_for(klass, method)
+        klass.reflect_on_association method if klass.respond_to? :reflect_on_association
+      end
+
       def single_record?
         @single_record ||= @collection.size == 1
+      end
+      
+      def is_array?(obj)
+        obj.respond_to?(:each) && obj.respond_to?(:first) && !obj.is_a?(Hash)
       end
     end
 

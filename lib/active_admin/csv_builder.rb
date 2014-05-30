@@ -32,27 +32,45 @@ module ActiveAdmin
       @columns, @options, @block = [], options, block
     end
 
-    # Add a column
     def column(name, &block)
       @columns << Column.new(name, @resource, block)
     end
 
-    # Runs the `csv` dsl block and render our columns
-    # Called from `index.csv.erb`, which passes in the current view context.
-    # This provides methods that could be called in the views to be called within
-    # the CSV block. Any method not defined on the CSV builder will instead be
-    # sent to the view context in order to emulate the capabilities of the `index`
-    # DSL.
-    def render_columns(view_context = nil)
+    def build(view_context, receiver)
+      options = ActiveAdmin.application.csv_options.merge self.options
+      columns = exec_columns view_context
+
+      receiver << CSV.generate_line(columns.map{ |c| encode c.name, options }, options)
+
+      view_context.send(:collection).find_each do |resource|
+        receiver << CSV.generate_line(build_row(resource, columns, options), options)
+      end
+    end
+
+    def exec_columns(view_context = nil)
       @view_context = view_context
       @columns = [] # we want to re-render these every instance
-      instance_eval &@block if @block.present?
+      instance_exec &@block if @block.present?
       columns
     end
 
+    def build_row(resource, columns, options)
+      columns.map do |column|
+        encode call_method_or_proc_on(resource, column.data), options
+      end
+    end
+
+    def encode(content, options)
+      if options[:encoding]
+        content.to_s.encode! options[:encoding], options[:encoding_options]
+      else
+        content
+      end
+    end
+
     def method_missing(method, *args, &block)
-      if @view_context.respond_to?(method)
-        @view_context.send(method, *args, &block)
+      if @view_context.respond_to? method
+        @view_context.public_send method, *args, &block
       else
         super
       end

@@ -82,9 +82,11 @@ module ActiveAdmin
 
       # make sure that the sortable children sorted in stable ascending order
       if column = builder_options[:sortable]
-        children = object.send(assoc)
-        children = children.sort_by {|o| [o.send(column), o.id]}
-        options[:for] = [assoc,  children]
+        children = object.public_send(assoc).sort_by do |o|
+          attribute = o.public_send column
+          [attribute.nil? ? Float::INFINITY : attribute, o.id || Float::INFINITY]
+        end
+        options[:for] = [assoc, children]
       end
 
       html = without_wrapper do
@@ -100,11 +102,8 @@ module ActiveAdmin
         form_buffers.last
       end
 
-      form_buffers.last << if @already_in_an_inputs_block
-        template.content_tag :li,  html, class: "has_many_container #{assoc}", 'data-sortable' => builder_options[:sortable]
-      else
-        template.content_tag :div, html, class: "has_many_container #{assoc}", 'data-sortable' => builder_options[:sortable]
-      end
+      tag = @already_in_an_inputs_block ? :li : :div
+      form_buffers.last << template.content_tag(tag, html, class: "has_many_container #{assoc}", 'data-sortable' => builder_options[:sortable])
     end
 
     def semantic_errors(*args)

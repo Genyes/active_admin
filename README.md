@@ -11,13 +11,17 @@ Active Admin is a Ruby on Rails framework for creating elegant backends for webs
 
 ## State of the project
 
+### 1.0.0
+
 We're [currently working on 1.0.0](https://github.com/gregbell/active_admin/issues?milestone=18),
 which as far as dependencies, moves us from meta_search to Ransack and adds Rails 4 support.
-Until it's ready, you can get Rails 4 support today by tracking master:
+You can get Rails 4 and 4.1 support by tracking master:
 
 ```ruby
 gem 'activeadmin', github: 'gregbell/active_admin'
 ```
+
+### 0.6.x
 
 The plan is to follow [semantic versioning](http://semver.org/) as of 1.0.0. The 0.6.x line will
 still be maintained, and we will backport bug fixes into future 0.6.x releases. If you don't want
@@ -27,8 +31,10 @@ to have to wait for a release, you can track the branch instead:
 gem 'activeadmin', github: 'gregbell/active_admin', branch: '0-6-stable'
 ```
 
+## Documentation
+
 Please note that <http://activeadmin.info> is out of date. For the latest docs, check out the
-Github repo itself.
+Github [docs folder](https://github.com/gregbell/active_admin/tree/master/docs) and the [wiki](https://github.com/gregbell/active_admin/wiki).
 
 ## Links
 

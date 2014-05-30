@@ -12,8 +12,8 @@ Feature: Format as CSV
     When I am on the index page for posts
     And I follow "CSV"
     And I should download a CSV file for "posts" containing:
-    | Id  | Title       | Body | Published at | Starred | Created at | Updated at |
-    | \d+ | Hello World |      |              |         | (.*)       | (.*)       |
+    | Id  | Title       | Body | Published at | Position | Starred | Created at | Updated at |
+    | \d+ | Hello World |      |              |          |         | (.*)       | (.*)       |
 
   Scenario: Default with alias
     Given a configuration of:
@@ -24,7 +24,7 @@ Feature: Format as CSV
     When I am on the index page for my_articles
     And I follow "CSV"
     And I should download a CSV file for "my-articles" containing:
-    | Id  | Title       | Body | Published at | Starred | Created at | Updated at |
+    | Id  | Title       | Body | Published at | Position | Starred | Created at | Updated at |
 
   Scenario: With CSV format customization
     Given a configuration of:
@@ -115,3 +115,35 @@ Feature: Format as CSV
       | Title  | Body |
       | 012345 | (.*) |
     And the CSV file should contain "012345" in quotes
+
+  Scenario: With encoding CSV options
+    Given a configuration of:
+    """
+      ActiveAdmin.register Post do
+        csv :encoding => 'SJIS' do
+          column :title
+          column :body
+        end
+      end
+    """
+    And a post with the title "あいうえお" exists
+    When I am on the index page for posts
+    And I follow "CSV"
+    And the encoding of the CSV file should be "SJIS"
+
+  Scenario: With default encoding CSV options
+    Given a configuration of:
+    """
+      ActiveAdmin.application.csv_options = { :encoding => 'SJIS' }
+      ActiveAdmin.register Post do
+        csv do
+          column :title
+          column :body
+        end
+      end
+    """
+    And a post with the title "あいうえお" exists
+    When I am on the index page for posts
+    And I follow "CSV"
+    And the encoding of the CSV file should be "SJIS"
+

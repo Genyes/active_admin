@@ -36,7 +36,7 @@ module ActiveAdmin
 
     # Set the site title image displayed in the main layout (has precendence over :site_title)
     inheritable_setting :site_title_image, ""
-    
+
     # Set a favicon
     inheritable_setting :favicon, false
 
@@ -176,9 +176,7 @@ module ActiveAdmin
     end
 
     def load(file)
-      super
-    rescue ActiveRecord::StatementInvalid => exception
-      raise DatabaseHitDuringLoad.new exception
+      DatabaseHitDuringLoad.capture{ super }
     end
 
     # Returns ALL the files to be loaded
@@ -202,12 +200,16 @@ module ActiveAdmin
     #
     %w(before_filter skip_before_filter after_filter skip_after_filter around_filter skip_filter).each do |name|
       define_method name do |*args, &block|
-        ActiveAdmin::BaseController.send              name, *args, &block
-        ActiveAdmin::Devise::PasswordsController.send name, *args, &block
-        ActiveAdmin::Devise::SessionsController.send  name, *args, &block
-        ActiveAdmin::Devise::UnlocksController.send   name, *args, &block
-        ActiveAdmin::Devise::RegistrationsController.send name, *args, &block
+        controllers_for_filters.each do |controller|
+          controller.public_send name, *args, &block
+        end
       end
+    end
+
+    def controllers_for_filters
+      controllers = [BaseController]
+      controllers.push *Devise.controllers_for_filters if Dependency.devise?
+      controllers
     end
 
   private

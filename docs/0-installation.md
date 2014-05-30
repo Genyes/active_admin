@@ -11,7 +11,7 @@ that can be injected into your existing Ruby on Rails application.
 
 ## Setting up Active Admin
 
-After installing the gem, you need to run the generator:
+After installing the gem, you need to run the generator (one of the following):
 
 ```sh
 rails g active_admin:install              # creates the AdminUser class
@@ -79,6 +79,11 @@ Kaminari.configure do |config|
 end
 ```
 
+## simple_form
+
+If you're getting the error `wrong number of arguments (6 for 4..5)`, [read #2703].
+
 [CHANGELOG]: https://github.com/gregbell/active_admin/blob/master/CHANGELOG.md
 [dashboard.rb]: https://github.com/gregbell/active_admin/blob/master/lib/generators/active_admin/install/templates/dashboard.rb
 [active_admin.rb]: https://github.com/gregbell/active_admin/blob/master/lib/generators/active_admin/install/templates/active_admin.rb.erb
+[read #2703]: https://github.com/gregbell/active_admin/issues/2703#issuecomment-38140864

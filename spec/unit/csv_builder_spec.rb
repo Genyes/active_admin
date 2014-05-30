@@ -3,7 +3,7 @@ require 'spec_helper'
 describe ActiveAdmin::CSVBuilder do
 
   describe '.default_for_resource using Post' do
-    let(:csv_builder) { ActiveAdmin::CSVBuilder.default_for_resource(Post).tap(&:render_columns) }
+    let(:csv_builder) { ActiveAdmin::CSVBuilder.default_for_resource(Post).tap(&:exec_columns) }
 
     it 'returns a default csv_builder for Post' do
       expect(csv_builder).to be_a(ActiveAdmin::CSVBuilder)
@@ -25,8 +25,8 @@ describe ActiveAdmin::CSVBuilder do
       let(:localized_name) { 'Titulo' }
 
       before do
-        Post.stub(:human_attribute_name).and_call_original
-        Post.stub(:human_attribute_name).with(:title){ localized_name }
+        allow(Post).to receive(:human_attribute_name).and_call_original
+        allow(Post).to receive(:human_attribute_name).with(:title){ localized_name }
       end
 
       it 'gets name from I18n' do
@@ -37,7 +37,7 @@ describe ActiveAdmin::CSVBuilder do
   end
 
   context 'when empty' do
-    let(:builder){ ActiveAdmin::CSVBuilder.new.tap(&:render_columns) }
+    let(:builder){ ActiveAdmin::CSVBuilder.new.tap(&:exec_columns) }
 
     it "should have no columns" do
       expect(builder.columns).to eq []
@@ -48,7 +48,7 @@ describe ActiveAdmin::CSVBuilder do
     let(:builder) do
       ActiveAdmin::CSVBuilder.new do
         column :title
-      end.tap(&:render_columns)
+      end.tap(&:exec_columns)
     end
 
     it "should have one column" do
@@ -74,7 +74,7 @@ describe ActiveAdmin::CSVBuilder do
         column "My title" do
           # nothing
         end
-      end.tap(&:render_columns)
+      end.tap(&:exec_columns)
     end
 
     it "should have one column" do
@@ -96,7 +96,7 @@ describe ActiveAdmin::CSVBuilder do
 
   context "with a separator" do
     let(:builder) do
-      ActiveAdmin::CSVBuilder.new(col_sep: ";").tap(&:render_columns)
+      ActiveAdmin::CSVBuilder.new(col_sep: ";").tap(&:exec_columns)
     end
 
     it "should have proper separator" do
@@ -106,7 +106,7 @@ describe ActiveAdmin::CSVBuilder do
 
   context "with csv_options" do
     let(:builder) do
-      ActiveAdmin::CSVBuilder.new(force_quotes: true).tap(&:render_columns)
+      ActiveAdmin::CSVBuilder.new(force_quotes: true).tap(&:exec_columns)
     end
 
     it "should have proper separator" do
@@ -123,12 +123,21 @@ describe ActiveAdmin::CSVBuilder do
         controller.names.each do |name|
           column(name)
         end
-      end.tap{|b| b.render_columns(dummy_view_context)}
+      end.tap{ |b| b.exec_columns(dummy_view_context) }
     end
 
-    it "should render columns provided by the controller" do
+    it "should build columns provided by the controller" do
       expect(builder.columns.map(&:data)).to match_array([:id, :title, :summary, :updated_at, :created_at])
     end
+  end
+
+  pending '#build'
+  pending '#exec_columns'
+
+  pending '#build_row' do
+    it 'renders non-strings'
+    it 'encodes values correctly'
+    it 'passes custom encoding options to String#encode!'
   end
 
 end
