@@ -7,6 +7,8 @@ module ActiveAdmin
   # BaseController for ActiveAdmin.
   # It implements ActiveAdmin controllers core features.
   class BaseController < SubdomainController
+    skip_authorization_check
+    inherit_resources
     helper ::ActiveAdmin::ViewHelpers
 
     layout :determine_active_admin_layout
