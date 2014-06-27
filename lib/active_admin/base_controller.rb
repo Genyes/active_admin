@@ -6,12 +6,11 @@ require 'active_admin/base_controller/menu'
 module ActiveAdmin
   # BaseController for ActiveAdmin.
   # It implements ActiveAdmin controllers core features.
-  class BaseController < ::InheritedResources::Base
+  class BaseController < SubdomainController
     helper ::ActiveAdmin::ViewHelpers
 
     layout :determine_active_admin_layout
 
-    before_filter :valid_school
     before_filter :only_render_implemented_actions
     before_filter :authenticate_active_admin_user
 
