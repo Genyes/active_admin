@@ -11,11 +11,7 @@ module ActiveAdmin
         super(id: "site_title")
         @namespace = namespace
 
-        if site_title_link?
-          text_node site_title_with_link
-        else
-          text_node site_title_content
-        end
+        text_node @namespace
       end
 
       def site_title_link?
