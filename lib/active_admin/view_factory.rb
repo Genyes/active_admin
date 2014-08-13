@@ -6,7 +6,7 @@ module ActiveAdmin
     # Register Helper Renderers
     register  global_navigation:   ActiveAdmin::Views::TabbedNavigation,
               utility_navigation:  ActiveAdmin::Views::TabbedNavigation,
-              site_title:          ActiveAdmin::Views::SiteTitle,
+              site_title:          ActiveAdmin::Views::TabbedNavigation,
               action_items:        ActiveAdmin::Views::ActionItems,
               title_bar:           ActiveAdmin::Views::TitleBar,
               header:              ActiveAdmin::Views::Header,
