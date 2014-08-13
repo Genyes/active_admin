@@ -24,7 +24,7 @@ module ActiveAdmin
 	        end
 	      end
         
-        insert_tag view_tag.site_title, @custom_menu
+        insert_tag view_factory.site_title, @custom_menu
       end
 
       def build_global_navigation
