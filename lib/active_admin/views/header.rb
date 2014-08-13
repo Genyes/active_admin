@@ -18,7 +18,7 @@ module ActiveAdmin
       def build_site_title
         @custom_menu = Menu.new
 
-	      @custom_menu.add label: get_product.name do |dropdown|
+	      @custom_menu.add label: get_product.name, url: switch_product_sessions_path(id: current_flavor.id) do |dropdown|
 	        current_school.flavors.where('flavors.id <> ?', current_flavor.id).each do |f|
 	          dropdown.add label: f.product.name, url: switch_product_sessions_path(id: f.id)
 	        end
