@@ -24,11 +24,11 @@ module ActiveAdmin
 	        end
 	      end
         
-        insert_tag view_factory.site_title, @custom_menu
+        insert_tag view_factory.site_title, @custom_menu, class: 'header-item tabs'
       end
 
       def build_global_navigation
-        insert_tag view_factory.global_navigation, @menu, class: 'header-item tabs'
+        insert_tag view_factory.global_navigation, @menu, class: 'header-item tabs', id: 'Site Title'
       end
 
       def build_utility_navigation
