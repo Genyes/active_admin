@@ -17,6 +17,15 @@ module ActiveAdmin
 
       def build_site_title
         insert_tag view_factory.site_title, @namespace
+        @custom_menu = Menu.new
+
+	@custom_menu.add label: get_product.name do |dropdown|
+	  current_school.flavors.where('flavors.id <> ?', current_flavor.id).each do |f|
+	    dropdown.add label: f.product.name, url: switch_product_sessions_path(id: f.id)
+	  end
+	end
+        
+        insert_tag view_tag.site_title, @custom_menu
       end
 
       def build_global_navigation
