@@ -5,6 +5,10 @@ form {
   ul, ol, li, fieldset, legend, input, textarea, select, p { margin:0; padding:0; }
   ol, ul { list-style: none }
 
+  li.hidden {
+    display: none;
+  }
+
   fieldset {
     border: 0;
     padding: 10px 0;
